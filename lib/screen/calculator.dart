@@ -1,9 +1,5 @@
-// ignore_for_file: file_names, no_leading_underscores_for_local_identifiers
-
 import 'package:basic_calculator/color.dart';
-import 'package:basic_calculator/i%C5%9Flemler/i%C5%9Flemler.dart';
-import 'package:basic_calculator/widget/button.dart';
-
+import 'package:basic_calculator/calculator/colculator.dart';
 import 'package:flutter/material.dart';
 
 class BasicCalculator extends StatefulWidget {
@@ -14,198 +10,255 @@ class BasicCalculator extends StatefulWidget {
 }
 
 class _BasicCalculatorState extends State<BasicCalculator> {
-  List<double> _extractNumbers(String input) {
-    return [];
-  }
-
-  var userQuestion = ""; //kullanıcının  gırdıgı soruyu tutan  değişken
-  var userAnswer = ""; // hesaplanan cevabı  tutan değişken
-  late HesapMakinasi hesapMakinasi = HesapMakinasi();
-  void hesapla() {
-    List<double> numbers = _extractNumbers(userQuestion);
-    if (userQuestion.contains('+')) {
-      userAnswer = hesapMakinasi.toplama(numbers).toString();
-    } else if (userQuestion.contains('-')) {
-      userAnswer = hesapMakinasi.cikartma(numbers).toString();
-    } else if (userQuestion.contains('x') || userQuestion.contains('*')) {
-      userAnswer = hesapMakinasi.carpma(numbers).toString();
-    } else if (userQuestion.contains('/')) {
-      userAnswer = hesapMakinasi.bolme(numbers).toString();
-    } else if (userQuestion.contains('^')) {
-      userAnswer = hesapMakinasi.ustalma(numbers).toString();
-    } else {
-      // Diğer durumları kontrol et
-    }
-    //sonucu yazsıın
-    setState(() {});
-  }
+  String userQuestion = ""; //kullanıcının  gırdıgı soruyu tutan  değişken
+  String userAnswer = ""; // hesaplanan cevabı  tutan değişken
+  Calculator hesapmakinasi = Calculator(); //mat iş gerç sınıf
 
   @override
   Widget build(BuildContext context) {
-    List<String> buttons = [
-      "C",
-      "Del",
-      "()",
-      "/",
-      "7",
-      "8",
-      "9",
-      "x",
-      "4",
-      "5",
-      "6",
-      "-",
-      "1",
-      "2",
-      "3",
-      "+",
-      "0",
-      "✓",
-      "=",
-      "^"
-    ];
-////verilen string bır operator mu  kontrol eden fonksıyon
-    bool isOperator(String x) {
-      if (x == 'C' ||
-          x == 'Del' ||
-          x == '()' ||
-          x == '/' ||
-          x == '9' ||
-          x == '8' ||
-          x == '7' ||
-          x == '6' ||
-          x == '5' ||
-          x == '4' ||
-          x == '3' ||
-          x == '2' ||
-          x == '1' ||
-          x == '0' ||
-          x == '✓' ||
-          x == '+' ||
-          x == '-' ||
-          x == '=' ||
-          x == '^' ||
-          x == 'x') {
-        return true;
-      }
-      return false;
-    }
-
-    // esıttır fonksıyonun ıslem yapıldıgı fonksıyon
-    void equelPressed() {
-      setState(() {
-        hesapla();
-      });
-    }
-
-/////////son karakterı sılen fonksıyon
-    void deleteLastItem() {
-      if (userQuestion == "") {
-        return;
-      } else {
-        setState(() {
-          userQuestion = userQuestion.substring(0, userQuestion.length - 1);
-        });
-      }
-    }
-
-//////ekranın temızlenmesını  sağlayan  ve degerını sıfırlayan fonksıyon
-    void _onDoubleTap() {
-      setState(() => userQuestion = "");
-      setState(() => userAnswer = "");
-    }
-
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-              child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Spacer(),
-                _userQuestion(userQuestion, Alignment.bottomRight),
-                const SizedBox(height: 10),
-                _userAnswer(userAnswer, Alignment.bottomRight),
-                const SizedBox(height: 20),
-              ],
-            ),
-          )),
-          Expanded(
-            flex: 2,
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: buttons.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4),
-              itemBuilder: (context, index) {
-                var button = buttons[index];
-                // Clear
-                if (index == 0) {
-                  return CalculatorButton(
-                    onTap: () => setState(() => userQuestion = ""),
-                    onDoubleTap: _onDoubleTap,
-                    buttonText: button,
-                    color: isOperator(button) ? primaryColor : secondColor,
-                    textColor: isOperator(button) ? textColor : textColor,
-                  );
-                  // Delete Last Item
-                } else if (index == 1) {
-                  return CalculatorButton(
-                    onTap: deleteLastItem,
-                    buttonText: buttons[index],
-                    color: isOperator(button) ? primaryColor : secondColor,
-                    textColor: isOperator(button) ? textColor : textColor,
-                  );
-                }
-                // Equel
-                else if (index == buttons.length - 1) {
-                  return CalculatorButton(
-                    buttonText: button,
-                    onTap: () => setState(() => equelPressed()),
-                    color: isOperator(button) ? primaryColor : secondColor,
-                    textColor: isOperator(button) ? textColor : textColor,
-                  );
-                } else {
-                  return CalculatorButton(
-                    buttonText: button,
-                    onTap: () => setState(() => userQuestion += buttons[index]),
-                    color: isOperator(button) ? primaryColor : secondColor,
-                    textColor: isOperator(button) ? textColor : textColor,
-                  );
-                }
-              },
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              userQuestion,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              userAnswer,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          //butonu olusturmak için metodu çağırır
+          buildRow(['C', 'Del', '/', '=']),
+          buildRow(['7', '8', '9', '*']),
+          buildRow(['4', '5', '6', '-']),
+          buildRow(['1', '2', '3', '+']),
+          buildRow(['.', '0', '^', '√']),
+          buildRow([
+            '(',
+            ')',
+          ]),
         ],
       ),
     );
   }
 
-///// kullanıcının sorusunu gosteren fonksıyon
-  Container _userAnswer(String title, AlignmentGeometry alignment) {
-    return Container(
-      alignment: alignment,
+//butonları olsuturan satırları olusturur
+  Widget buildRow(List<String> buttons) {
+    //her bır butonu yan yana getırmesını sağlıyor
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: buttons.map((button) {
+        return buildButton(button);
+      }).toList(),
+    );
+  }
+
+//tek  bır butonu olustururu
+  Widget buildButton(String label) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          if (label == 'C') {
+            userQuestion = '';
+            userAnswer = '';
+          } else if (label == '=') {
+            calculate();
+          } else if (label == 'Del') {
+            if (userQuestion.isNotEmpty) {
+              ///bos degılse
+              userQuestion = userQuestion.substring(
+                  0,
+                  userQuestion.length -
+                      1); //kullanıcıdan alacagımız verı en son yazdıgı kısmı sılmek
+            }
+          } else {
+            userQuestion += label;
+
+            ///kullanıcıdan aldıgım verıyle butondakı verıyı ekle
+          }
+        });
+      },
       child: Text(
-        title,
-        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              color: answerTextColor,
-            ),
+        label,
+        style: const TextStyle(fontSize: 24),
       ),
     );
   }
 
-// cevabı gosteren
-  Container _userQuestion(String title, AlignmentGeometry alignment) {
-    return Container(
-        alignment: alignment,
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: questionTextColor.withOpacity(0.5),
-              ),
-        ));
+//kullanıcının gırdııgı  ifadeyi hesaplar
+  void calculate() {
+    String cleanedInput = userQuestion.replaceAll(' ', ''); //boslugu sıl
+    if (cleanedInput.isEmpty) {
+      //eger bossa bos dondur
+      return;
+    }
+    cleanedInput = evaluateParentheses(
+        // e.parantezleri değ.işlem önceliği belır
+        cleanedInput); //sılınıne ınput parantezlerı degerlendırlıen kullanıcı verısıne esıtlwenır
+    List<String> tokens =
+        tokenizeExpression(cleanedInput); // ifadeyi parçalayarak token donustr;
+    userAnswer = performOperation(tokens)
+        .toString(); // Operatörlerin ve sayıların listelerini kullanarak
+    // matematiksel işlemleri sırayla yapıyor.
+    setState(() {
+      print('UserAnswer: $userAnswer');
+    });
+  }
+
+//parantezleri değerlendirir ve işlem öncelikleri
+  String evaluateParentheses(String input) {
+    while (input.contains('(')) {
+      RegExp exp = RegExp(r'\(([^()]+)\)');
+      String innerExpression = exp.firstMatch(input)?.group(1) ?? '';
+      String innerResult =
+          performOperation(tokenizeExpression(innerExpression)).toString();
+      input = input.replaceFirst('($innerExpression)', innerResult);
+    }
+    return input;
+  }
+
+//ifadenin tokenleri olustururlur
+//
+  List<String> tokenizeExpression(String expression) {
+    List<String> tokens = [];
+    String currentToken = ''; //string değişken
+
+    ///mevcut ındex
+    for (int i = 0; i < expression.length; i++) {
+      //bır dongu baslatılır
+      String char = expression[
+          i]; //e.dongu ifade uzerınde  her bır karakterı kontrol eder
+      if (char == '+' ||
+          char == '-' ||
+          char == '*' ||
+          char == '/' ||
+          char == '^') {
+        if (currentToken.isNotEmpty) {
+          tokens.add(currentToken);
+          currentToken = '';
+        }
+        tokens.add(char);
+      } else if (char == '√') {
+        // Karekök sembolü için ayrı bir durum ekleyin
+        if (currentToken.isNotEmpty) {
+          tokens.add(currentToken);
+          currentToken = '';
+        }
+        tokens.add('√');
+      } else {
+        currentToken += char;
+      }
+    }
+    if (currentToken.isNotEmpty) {
+      tokens.add(currentToken);
+    }
+    return tokens;
+  }
+
+////işlem yapar token lıstesını ısler
+  double performOperation(List<String> tokens) {
+    List<double> numbers = [];
+    List<String> operators = [];
+
+    for (int i = 0; i < tokens.length; i++) {
+      String token = tokens[i];
+
+      if (isOperator(token)) {
+        // Eğer token bir operatörse, operators listesine ekle
+        operators.add(token);
+      } else {
+        // Eğer token bir sayı veya karekök işareti ise, numbers listesine ekle
+        if (token == '√') {
+          // Eğer karekök işareti ise, bir sonraki elemanı al ve karekök işlemini uygula
+          if (i + 1 < tokens.length && !isOperator(tokens[i + 1])) {
+            numbers.add(hesapmakinasi.karekok([double.parse(tokens[i + 1])]));
+            i++; // Bir sonraki elemanı geç
+          }
+        } else {
+          // Eğer token bir sayı ise, numbers listesine ekle
+          numbers.add(double.parse(token));
+
+          // Operatör varsa ve bir sonraki sayı varsa, önceki operatörü uygula
+          if (operators.isNotEmpty &&
+              i + 1 < tokens.length &&
+              !isOperator(tokens[i + 1])) {
+            applyOperator(numbers, operators);
+          }
+        }
+      }
+    }
+
+    // Kalan operatörleri uygula
+    while (operators.isNotEmpty) {
+      //işlemi operator listesi boşalana kadar  işlem yapar
+      applyOperator(numbers, operators); //listelerini parametre olarak
+      //alır ve listenin başındaki operatörü kullanarak işlem yapar.
+    }
+
+    // Sonuç döndür
+    return numbers.first;
+  }
+
+  void applyOperator(List<double> numbers, List<String> operators) {
+    if (numbers.length < 2) {
+      // İşlem için yeterli sayıda eleman yoksa, işlem yapma
+      return;
+    }
+
+    String operator = operators.removeAt(0);
+//performOperation() fonksiyonunda token listesindeki her bir öğeyi değerlendirerek, operatörlerin
+// kendine özgü işlemlerini gerçekleştirmektedir.
+//ullanıcının girdiği matematiksel ifadeyi işlemek ve sonucunu hesaplamaktır. Bunun için kullanıcının girdiği ifadeyi parçalara ayırmak ve
+// bu parçaları uygun matematiksel işlemlerle işlemek gerekiyor.
+    switch (operator) {
+      case '+':
+        numbers[1] = hesapmakinasi.toplama([numbers[0], numbers[1]]);
+        break;
+      case '-':
+        numbers[1] = hesapmakinasi.cikartma([numbers[0], numbers[1]]);
+        break;
+      case '*':
+        numbers[1] = hesapmakinasi.carpma([numbers[0], numbers[1]]);
+        break;
+      case '/':
+        numbers[1] = hesapmakinasi.bolme([numbers[0], numbers[1]]);
+        break;
+      case '^':
+        numbers[1] = hesapmakinasi.ustalma([numbers[0], numbers[1]]);
+        break;
+      case '√': // Karekök operatörü eklendi
+        if (numbers[0] >= 0) {
+          numbers[0] = hesapmakinasi.karekok([numbers[0]]);
+        } else {
+          // Karekök işlemi negatif sayılara uygulanamaz
+          throw const FormatException('Invalid square root operation');
+        }
+        break;
+      default:
+        break;
+    }
+
+    numbers.removeAt(0);
+  }
+
+  bool isOperator(String token) {
+    //token bır operator olup olmadıgını kabul eder
+    return token == '+' ||
+        token == '-' ||
+        token == '*' ||
+        token == '/' ||
+        token == '^';
   }
 }

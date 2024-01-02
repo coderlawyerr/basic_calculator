@@ -1,6 +1,6 @@
 import 'dart:math';
 
-class HesapMakinasi {
+class Calculator {
   double toplama(List<double> sayilar) {
     return sayilar.reduce((a, b) => a + b);
   }
