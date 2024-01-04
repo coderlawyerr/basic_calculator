@@ -11,8 +11,9 @@ class BasicCalculator extends StatefulWidget {
 
 class _BasicCalculatorState extends State<BasicCalculator> {
   String userQuestion = ""; //kullanıcının  gırdıgı soruyu tutan  değişken
-  String userAnswer = ""; // hesaplanan cevabı  tutan değişken
-  Calculator hesapmakinasi = Calculator(); //mat iş gerç sınıf
+  double userAnswer = 0; // hesaplanan cevabı  tutan değişken
+  Calculator hesapmakinasi =
+      Calculator(); //calculator  sınıfını import edıyoruz  hesapmakinası ile  o sınıftaki mate işlemleri cagrıyoruz
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,7 @@ class _BasicCalculatorState extends State<BasicCalculator> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
+              //kullanıcının gırmıs oldugu text
               userQuestion,
               style: const TextStyle(fontSize: 24),
             ),
@@ -31,7 +33,8 @@ class _BasicCalculatorState extends State<BasicCalculator> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              userAnswer,
+              ///sonuc textı
+              userAnswer.toString(),
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -45,23 +48,48 @@ class _BasicCalculatorState extends State<BasicCalculator> {
           buildRow(['4', '5', '6', '-']),
           buildRow(['1', '2', '3', '+']),
           buildRow(['.', '0', '^', '√']),
-          buildRow([
-            '(',
-            ')',
-          ]),
+          buildRow(
+            [
+              '(',
+              ')',
+            ],
+          ),
+          SizedBox(height: 95),
+          buildExitButton(),
         ],
       ),
     );
   }
 
+  Widget buildExitButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // Çıkış butonunun işlevselliği buraya gelecek
+          },
+          child: Text(
+            'Çıkış',
+            style: const TextStyle(fontSize: 24),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors
+                .black, // Çıkış butonunun rengini buradan ayarlayabilirsiniz
+          ),
+        ),
+      ],
+    );
+  }
+
 //butonları olsuturan satırları olusturur
+
   Widget buildRow(List<String> buttons) {
-    //her bır butonu yan yana getırmesını sağlıyor
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: buttons.map((button) {
-        return buildButton(button);
-      }).toList(),
+      children: buttons
+          .map((button) => buildButton(button))
+          .toList(), //her bır buld button lıste seklınde donduruyoruz
     );
   }
 
@@ -71,73 +99,90 @@ class _BasicCalculatorState extends State<BasicCalculator> {
       onPressed: () {
         setState(() {
           if (label == 'C') {
+            //tum verieri siler
             userQuestion = '';
-            userAnswer = '';
+            userAnswer = 0.0;
           } else if (label == '=') {
+            //hesaplama yapar
             calculate();
           } else if (label == 'Del') {
+            //kullanıcının gırmıs oldugu en son verının silmesini sağlar
             if (userQuestion.isNotEmpty) {
-              ///bos degılse
+              //kullanıcı gırmıs oldugu verı bos degılse
               userQuestion = userQuestion.substring(
-                  0,
-                  userQuestion.length -
-                      1); //kullanıcıdan alacagımız verı en son yazdıgı kısmı sılmek
+                  //kullancının gırmıs oldugu verıyı substring ile  en son verısını sılen yer
+                  0, //0. indeks silsin
+                  userQuestion.length - 1 //en son verıden sılmesını sağlar
+                  );
             }
           } else {
             userQuestion += label;
-
-            ///kullanıcıdan aldıgım verıyle butondakı verıyı ekle
+            //yukardakı hıc bır sarta uymazssa
+            // kullanıcının gırısı ekranda goster
           }
         });
       },
       child: Text(
+        //her bır butonun texı
         label,
         style: const TextStyle(fontSize: 24),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            Colors.purple, // Buton rengini buradan ayarlayabilirsiniz
       ),
     );
   }
 
-//kullanıcının gırdııgı  ifadeyi hesaplar
+//hesaplama yapan bır fonk
   void calculate() {
-    String cleanedInput = userQuestion.replaceAll(' ', ''); //boslugu sıl
-    if (cleanedInput.isEmpty) {
-      //eger bossa bos dondur
-      return;
-    }
-    cleanedInput = evaluateParentheses(
-        // e.parantezleri değ.işlem önceliği belır
-        cleanedInput); //sılınıne ınput parantezlerı degerlendırlıen kullanıcı verısıne esıtlwenır
+    String cleanedInput = userQuestion.replaceAll(
+        ' ', ''); // kullanıcın bosluk gırerse ou sıfırla
+
+    if (cleanedInput.isEmpty) return; // Boş ifade kontrolü
+
+    cleanedInput =
+        evaluateParentheses(cleanedInput); // Parantezleri değerlendir
+
     List<String> tokens =
-        tokenizeExpression(cleanedInput); // ifadeyi parçalayarak token donustr;
-    userAnswer = performOperation(tokens)
-        .toString(); // Operatörlerin ve sayıların listelerini kullanarak
-    // matematiksel işlemleri sırayla yapıyor.
+        tokenizeExpression(cleanedInput); // İfadeyi tokenlere ayır
+
+    userAnswer = performOperation(tokens); // Matematiksel işlemleri yap
+
     setState(() {
-      print('UserAnswer: $userAnswer');
+      print('UserAnswer: $userAnswer'); // Kullanıcı cevabını yazdır
     });
   }
 
-//parantezleri değerlendirir ve işlem öncelikleri
   String evaluateParentheses(String input) {
+    // Parantez içindeki ifadeyi alır
     while (input.contains('(')) {
-      RegExp exp = RegExp(r'\(([^()]+)\)');
-      String innerExpression = exp.firstMatch(input)?.group(1) ?? '';
+      //// parantez yakalar yoksa boş dondur
+      String innerExpression =
+          RegExp(r'\(([^()]+)\)').firstMatch(input)?.group(1) ?? '';
+
+      // İfadeyi hesaplar ve sonucu bir dizeye dönüştürür
       String innerResult =
           performOperation(tokenizeExpression(innerExpression)).toString();
+
+      // İfadeyi, ilk parantez içindeki ifadeyle değiştirir
       input = input.replaceFirst('($innerExpression)', innerResult);
     }
     return input;
   }
 
-//ifadenin tokenleri olustururlur
+//ifadenin tokenleri olustururlur , bir matematik ifadesini parçalara bölen bir analiz yapar.
 //
   List<String> tokenizeExpression(String expression) {
-    List<String> tokens = [];
-    String currentToken = ''; //string değişken
+    ///tokn yaklar
+    List<String> tokens =
+        []; //Bu liste, ifadeyi parçalara ayırmak için kullanılacak.
+    String currentToken =
+        ''; // ifadeyi parçalara bölmek için kullanılacak geçici bir depolama alanıdır.
 
     ///mevcut ındex
     for (int i = 0; i < expression.length; i++) {
-      //bır dongu baslatılır
+      //her bır karakterı kontrol etmek ıcın  dongu baslatılır
       String char = expression[
           i]; //e.dongu ifade uzerınde  her bır karakterı kontrol eder
       if (char == '+' ||
@@ -146,6 +191,8 @@ class _BasicCalculatorState extends State<BasicCalculator> {
           char == '/' ||
           char == '^') {
         if (currentToken.isNotEmpty) {
+          //Eğer currentToken içinde bir veri varsa (yani bir sayı veya sembol),
+          // bu veri tokens listesine eklenir ve currentToken boş bir string olarak sıfırlanır.
           tokens.add(currentToken);
           currentToken = '';
         }
@@ -158,39 +205,46 @@ class _BasicCalculatorState extends State<BasicCalculator> {
         }
         tokens.add('√');
       } else {
-        currentToken += char;
+        currentToken += char; //Eğer karakter bir operatör veya karekök sembolü
+        //değilse, bu karakteri currentToken'a ekler.
       }
     }
     if (currentToken.isNotEmpty) {
-      tokens.add(currentToken);
+      tokens.add(currentToken); //o ankı lıstesıne eklıyo
     }
     return tokens;
   }
 
-////işlem yapar token lıstesını ısler
   double performOperation(List<String> tokens) {
-    List<double> numbers = [];
-    List<String> operators = [];
+    //
+    //bir dizeyi tokenize edilmiş hâliyle alır ve bu tokenler
+    // aracılığıyla matematiksel işlemler yaparak sonucu döndürür.
+    final List<double> numbers = []; // Hesaplama için sayıları depolayan liste
+    final List<String> operators =
+        []; // Kullanılacak operatörleri depolayan liste
 
     for (int i = 0; i < tokens.length; i++) {
-      String token = tokens[i];
+      final token = tokens[i]; // İşlenecek token
 
+      // Eğer token bir operatörse, operatör listesine ekler
       if (isOperator(token)) {
-        // Eğer token bir operatörse, operators listesine ekle
         operators.add(token);
       } else {
-        // Eğer token bir sayı veya karekök işareti ise, numbers listesine ekle
+        // Token karekök işaretiyse
         if (token == '√') {
-          // Eğer karekök işareti ise, bir sonraki elemanı al ve karekök işlemini uygula
+          // Bir sonraki token sayıysa karekök işlemini uygular
+          //Eğer bir sonraki token bir sayı değilse veya bir operatörse,
+          // karekök işlemi yapılıyor ve sonucu numbers listesine ekleniyor.
           if (i + 1 < tokens.length && !isOperator(tokens[i + 1])) {
-            numbers.add(hesapmakinasi.karekok([double.parse(tokens[i + 1])]));
-            i++; // Bir sonraki elemanı geç
+            numbers.add(hesapmakinasi.karekok([double.parse(tokens[++i])]));
           }
         } else {
-          // Eğer token bir sayı ise, numbers listesine ekle
-          numbers.add(double.parse(token));
+          // Token bir sayıysa, sayı listesine ekler
+          numbers.add(double.parse(token)); //tokun double cınsınden
+          /// pars eder number lıstesıne eklenır
 
-          // Operatör varsa ve bir sonraki sayı varsa, önceki operatörü uygula
+          //"Eğer operatörler dizisi boş değilse ve bir sonraki elemanın indeksi mevcut dizinin uzunluğundan
+          //küçükse ve bir sonraki eleman bir operatör değilse, işlem yap."
           if (operators.isNotEmpty &&
               i + 1 < tokens.length &&
               !isOperator(tokens[i + 1])) {
@@ -200,14 +254,12 @@ class _BasicCalculatorState extends State<BasicCalculator> {
       }
     }
 
-    // Kalan operatörleri uygula
+    // Operatörlerin kalmışsa uygulanması
     while (operators.isNotEmpty) {
-      //işlemi operator listesi boşalana kadar  işlem yapar
-      applyOperator(numbers, operators); //listelerini parametre olarak
-      //alır ve listenin başındaki operatörü kullanarak işlem yapar.
+      applyOperator(numbers, operators);
     }
 
-    // Sonuç döndür
+    // Hesaplama sonucunu döndürür
     return numbers.first;
   }
 
@@ -216,7 +268,7 @@ class _BasicCalculatorState extends State<BasicCalculator> {
       // İşlem için yeterli sayıda eleman yoksa, işlem yapma
       return;
     }
-
+    //işlem bol baslamasın fln
     String operator = operators.removeAt(0);
 //performOperation() fonksiyonunda token listesindeki her bir öğeyi değerlendirerek, operatörlerin
 // kendine özgü işlemlerini gerçekleştirmektedir.
@@ -250,6 +302,7 @@ class _BasicCalculatorState extends State<BasicCalculator> {
         break;
     }
 
+    ///
     numbers.removeAt(0);
   }
 
