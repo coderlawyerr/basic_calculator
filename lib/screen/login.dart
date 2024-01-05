@@ -1,8 +1,28 @@
 import 'package:basic_calculator/screen/my_calculator.dart';
+import 'package:basic_calculator/screen/shared.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key});
+class Login extends StatelessWidget {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  String adminUserName = "";
+  String adminPassword = "";
+  Login({Key? key});
+
+  void showDialogFunction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext) => AlertDialog(
+        title: Text("Şifreniz yanış oldu tekrar deneyin:)"),
+        actions: <Widget>[
+          ElevatedButton(
+            onPressed: () {},
+            child: Text("Tamam"),
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +48,7 @@ class LoginPage extends StatelessWidget {
                 MainAxisAlignment.center, // Dikey eksende ortalamak için
             children: <Widget>[
               TextFormField(
+                controller: usernameController,
                 decoration: InputDecoration(
                   labelText: 'Kullanıcı Adı',
                   border: OutlineInputBorder(),
@@ -35,6 +56,7 @@ class LoginPage extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               TextFormField(
+                controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Şifre',
@@ -59,5 +81,19 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> loginPush(BuildContext context) async {
+    String adminUserName = usernameController.text;
+    String adminPassword = passwordController.text;
+
+    if (adminPassword == '1907' && adminUserName == "betul") {
+      SharedPreferencesHelper().savelogin(adminUserName, adminPassword);
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => BasicCalculator()));
+    } else {
+      showDialogFunction(context);
+    }
   }
 }
